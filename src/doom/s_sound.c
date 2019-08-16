@@ -992,7 +992,7 @@ void S_ChangeMusic(int musicnum, int looping)
     {
         char name[9];
         M_snprintf(name, sizeof(name), "%s", lumpinfo[music->lumpnum]->name);
-        fprintf(stderr, "S_ChangeMusic: %s (%s)\n", name,
+        fprintf(stdout, "S_ChangeMusic: %s (%s)\n", name,
                 W_WadNameForLump(lumpinfo[music->lumpnum]));
     }
 

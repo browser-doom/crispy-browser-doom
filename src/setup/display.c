@@ -28,6 +28,10 @@
 #include "display.h"
 #include "config.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #define WINDOW_HELP_URL "https://www.chocolate-doom.org/setup-display"
 
 extern void RestartTextscreen(void);
@@ -74,7 +78,11 @@ static int aspect_ratio_correct = 1;
 static int integer_scaling = 0;
 static int vga_porch_flash = 0;
 static int force_software_renderer = 0;
+#ifdef __EMSCRIPTEN__
+static int fullscreen = 0;
+#else
 static int fullscreen = 1;
+#endif
 static int fullscreen_width = 0, fullscreen_height = 0;
 static int window_width = 800, window_height = 600;
 static int startup_delay = 1000;

@@ -23,7 +23,11 @@
 #include <ctype.h>
 
 #include "SDL.h"
+#ifdef __EMSCRIPTEN__
+#include "SDL2/SDL_mixer.h"
+#else
 #include "SDL_mixer.h"
+#endif
 
 #include "i_glob.h"
 #include "i_midipipe.h"
@@ -1134,7 +1138,7 @@ static boolean I_MP_InitMusic(void)
     {
         fprintf(stderr, "Unable to set up sound.\n");
     }
-    else if (Mix_OpenAudio(snd_samplerate, AUDIO_S16SYS, 2, 1024) < 0)
+    else if (Mix_OpenAudioDevice(snd_samplerate, AUDIO_S16SYS, 2, 1024, NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
     {
         fprintf(stderr, "Error initializing SDL_mixer: %s\n",
                 Mix_GetError());

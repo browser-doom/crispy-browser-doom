@@ -16,7 +16,11 @@
 
 #include <stdlib.h>
 
+#ifdef __EMSCRIPTEN__
+#include "SDL2/SDL_mixer.h"
+#else
 #include "SDL_mixer.h"
+#endif
 
 #include "textscreen.h"
 #include "m_config.h"

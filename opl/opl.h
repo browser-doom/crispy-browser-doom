@@ -108,7 +108,11 @@ void OPL_WriteRegister(int reg, int value);
 // Perform a detection sequence to determine that an
 // OPL chip is present.
 
+#ifdef __EMSCRIPTEN__
+void OPL_Detect(uint64_t us);
+#else
 opl_init_result_t OPL_Detect(void);
+#endif
 
 // Initialize all registers, performed on startup.
 

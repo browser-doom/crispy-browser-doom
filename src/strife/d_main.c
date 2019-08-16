@@ -80,6 +80,10 @@
 
 #include "d_main.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 //
 // D-DoomLoop()
 // Not a globally visible function,
@@ -495,6 +499,31 @@ static boolean D_StartupGrabCallback(void)
     return false;
 }
 
+void D_RunFrame(void) {
+   // frame syncronous IO operations
+   I_StartFrame ();
+
+   // process one or more tics
+   TryRunTics (); // will run at least one tic
+
+   S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
+
+   // Update display, next frame, with current state.
+   if (screenvisible)
+       D_Display ();
+}
+
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE
+void D_SetLoopIter(void) {
+	emscripten_set_main_loop(D_RunFrame, 0, 0);
+}
+EMSCRIPTEN_KEEPALIVE
+void D_CancelLoopIter(void) {
+	emscripten_cancel_main_loop();
+}
+#endif
+
 //
 //  D_DoomLoop
 //
@@ -508,6 +537,10 @@ void D_DoomLoop (void)
     main_loop_started = true;
 
     TryRunTics();
+#ifdef __EMSCRIPTEN__
+	D_SetLoopIter();
+	I_AtExit(D_CancelLoopIter, true);
+#endif
 
     if (!showintro)
     {
@@ -530,20 +563,12 @@ void D_DoomLoop (void)
         wipegamestate = gamestate;
     }
 
+#ifndef __EMSCRIPTEN__
     while (1)
     {
-        // frame syncronous IO operations
-        I_StartFrame ();
-
-        // process one or more tics
-        TryRunTics (); // will run at least one tic
-
-        S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
-
-        // Update display, next frame, with current state.
-        if (screenvisible)
-            D_Display ();
+		D_RunFrame();
     }
+#endif
 }
 
 
@@ -1401,6 +1426,7 @@ static void D_DrawIntroSequence(void)
 
         I_FinishUpdate();
     }
+#ifndef __EMSCRIPTEN__
     else if (using_text_startup)
     {
         // Laser position
@@ -1421,6 +1447,7 @@ static void D_DrawIntroSequence(void)
 
         TXT_UpdateScreen();
     }
+#endif
 }
 
 //
@@ -1464,6 +1491,12 @@ static void G_CheckDemoStatusAtExit (void)
 {
     G_CheckDemoStatus();
 }
+
+#ifdef __EMSCRIPTEN__
+#define CONFIG_PREFIX "browser-"
+#else
+#define CONFIG_PREFIX PROGRAM_PREFIX
+#endif
 
 //
 // D_DoomMain
@@ -1648,7 +1681,9 @@ void D_DoomMain (void)
         DEH_printf(D_DEVSTR);
     
     // find which dir to use for config files
-
+#ifdef __EMSCRIPTEN__
+	M_SetConfigDir("/data/");
+#else
 #ifdef _WIN32
 
     //!
@@ -1674,6 +1709,7 @@ void D_DoomMain (void)
 
         M_SetConfigDir(NULL);
     }
+#endif
     
     //!
     // @category game
@@ -1710,7 +1746,7 @@ void D_DoomMain (void)
     // Load configuration files before initialising other subsystems.
     // haleyjd 08/22/2010: [STRIFE] - use strife.cfg
     // DEH_printf("M_LoadDefaults: Load system defaults.\n"); [STRIFE] removed
-    M_SetConfigFilenames("strife.cfg", PROGRAM_PREFIX "strife.cfg");
+    M_SetConfigFilenames("strife.cfg", CONFIG_PREFIX "strife.cfg");
     D_BindVariables();
     M_LoadDefaults();
 

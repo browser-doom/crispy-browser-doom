@@ -85,6 +85,16 @@ static opl_init_result_t InitDriver(opl_driver_t *_driver,
     driver = _driver;
     init_stage_reg_writes = 1;
 
+#ifdef __EMSCRIPTEN__
+	OPL_Detect(0);
+	OPL_Detect(1 * OPL_MS + 1);
+
+	init_stage_reg_writes = 0;
+
+    printf("OPL_Init: Using driver '%s'.\n", driver->name);
+
+	return OPL_INIT_OPL3;
+#else
     result1 = OPL_Detect();
     result2 = OPL_Detect();
     if (result1 == OPL_INIT_NONE || result2 == OPL_INIT_NONE)
@@ -100,6 +110,7 @@ static opl_init_result_t InitDriver(opl_driver_t *_driver,
     printf("OPL_Init: Using driver '%s'.\n", driver->name);
 
     return result2;
+#endif
 }
 
 // Find a driver automatically by trying each in the list.
@@ -279,6 +290,65 @@ void OPL_WriteRegister(int reg, int value)
 
 // Detect the presence of an OPL chip
 
+#ifdef __EMSCRIPTEN__
+static void OPL_DetectCallback2(void *_data)
+{
+    int result1, result2;
+
+    result1 = 0;
+
+    // Read status
+    result2 = OPL_ReadStatus();
+
+    // Reset both timers:
+    OPL_WriteRegister(OPL_REG_TIMER_CTRL, 0x60);
+
+    // Enable interrupts:
+    OPL_WriteRegister(OPL_REG_TIMER_CTRL, 0x80);
+
+    if ((result1 & 0xe0) == 0x00 && (result2 & 0xe0) == 0xc0)
+    {
+        result1 = OPL_ReadPort(OPL_REGISTER_PORT);
+        result2 = OPL_ReadPort(OPL_REGISTER_PORT_OPL3);
+    }
+}
+
+static void OPL_DetectCallback1(void *_data)
+{
+    int result1;
+    int i;
+
+    OPL_WriteRegister(OPL_REG_TIMER_CTRL, 0x60);
+
+    // Enable interrupts:
+    OPL_WriteRegister(OPL_REG_TIMER_CTRL, 0x80);
+
+    // Read status
+    result1 = OPL_ReadStatus();
+
+    // Set timer:
+    OPL_WriteRegister(OPL_REG_TIMER1, 0xff);
+
+    // Start timer 1:
+    OPL_WriteRegister(OPL_REG_TIMER_CTRL, 0x21);
+
+    // Wait for 80 microseconds
+    // This is how Doom does it:
+
+    for (i=0; i<200; ++i)
+    {
+        OPL_ReadStatus();
+    }
+
+    OPL_SetCallback(1 * OPL_MS, OPL_DetectCallback2, &result1);
+}
+
+void OPL_Detect(uint64_t us)
+{
+    OPL_SetCallback(us, OPL_DetectCallback1, NULL);
+}
+
+#else
 opl_init_result_t OPL_Detect(void)
 {
     int result1, result2;
@@ -336,6 +406,7 @@ opl_init_result_t OPL_Detect(void)
         return OPL_INIT_NONE;
     }
 }
+#endif
 
 // Initialize registers on startup
 

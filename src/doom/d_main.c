@@ -77,6 +77,10 @@
 
 #include "d_main.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 //
 // D-DoomLoop()
 // Not a globally visible function,
@@ -543,6 +547,22 @@ void D_RunFrame()
 	}
 }
 
+#ifdef __EMSCRIPTEN__
+
+EMSCRIPTEN_KEEPALIVE
+void D_SetLoopIter(void)
+{
+	emscripten_set_main_loop(D_RunFrame, 0, 0);
+}
+
+EMSCRIPTEN_KEEPALIVE
+void D_CancelLoopIter(void)
+{
+	emscripten_cancel_main_loop();
+}
+
+#endif
+
 //
 //  D_DoomLoop
 //
@@ -566,6 +586,10 @@ void D_DoomLoop (void)
     I_SetWindowTitle(gamedescription);
     I_GraphicsCheckCommandLine();
     I_SetGrabMouseCallback(D_GrabMouseCallback);
+#ifdef __EMSCRIPTEN__
+	D_SetLoopIter();
+	I_AtExit(D_CancelLoopIter, true);
+#endif
     I_InitGraphics();
     EnableLoadingDisk();
 
@@ -581,10 +605,12 @@ void D_DoomLoop (void)
         wipegamestate = gamestate;
     }
 
+#ifndef __EMSCRIPTEN__
     while (1)
     {
         D_RunFrame();
     }
+#endif
 }
 
 
@@ -1514,6 +1540,12 @@ static void G_CheckDemoStatusAtExit (void)
     G_CheckDemoStatus();
 }
 
+#ifdef __EMSCRIPTEN__
+#define CONFIG_PREFIX "browser-"
+#else
+#define CONFIG_PREFIX PROGRAM_PREFIX
+#endif
+
 //
 // D_DoomMain
 //
@@ -1686,7 +1718,11 @@ void D_DoomMain (void)
     {
         // Auto-detect the configuration dir.
 
+#ifdef __EMSCRIPTEN__
+		M_SetConfigDir("/data/");
+#else
         M_SetConfigDir(NULL);
+#endif
     }
 
     //!
@@ -1723,7 +1759,7 @@ void D_DoomMain (void)
 
     // Load configuration files before initialising other subsystems.
     DEH_printf("M_LoadDefaults: Load system defaults.\n");
-    M_SetConfigFilenames("default.cfg", PROGRAM_PREFIX "doom.cfg");
+    M_SetConfigFilenames("default.cfg", CONFIG_PREFIX "doom.cfg");
     D_BindVariables();
     M_LoadDefaults();
 
@@ -2058,9 +2094,13 @@ void D_DoomMain (void)
     DEH_printf("I_Init: Setting up machine state.\n");
     I_CheckIsScreensaver();
     I_InitTimer();
+    DEH_printf("I_Init: Initialized timer.\n");
     I_InitJoystick();
+    DEH_printf("I_Init: Initialized joystick.\n");
     I_InitSound(true);
+    DEH_printf("I_Init: Initialized sound.\n");
     I_InitMusic();
+    DEH_printf("I_Init: Initialized music \n");
 
     // [crispy] check for SSG resources
     crispy->havessg =

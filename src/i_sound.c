@@ -18,7 +18,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __EMSCRIPTEN__
+#include "SDL2/SDL_mixer.h"
+#else
 #include "SDL_mixer.h"
+#endif
 
 #include "crispy.h"
 #include "config.h"
@@ -100,7 +104,9 @@ static int snd_mport = 0;
 static sound_module_t *sound_modules[] = 
 {
     &sound_sdl_module,
+#ifndef __EMSCRIPTEN__
     &sound_pcsound_module,
+#endif
     NULL,
 };
 
@@ -108,7 +114,9 @@ static sound_module_t *sound_modules[] =
 
 static music_module_t *music_modules[] =
 {
+#ifndef __EMSCRIPTEN__
     &music_sdl_module,
+#endif
     &music_opl_module,
     NULL,
 };
@@ -268,7 +276,7 @@ void I_InitSound(boolean use_sfx_prefix)
     {
 	const char *driver_name = SDL_GetCurrentAudioDriver();
 
-	fprintf(stderr, "I_InitSound: SDL audio driver is %s\n", driver_name ? driver_name : "none");
+	fprintf(stdout, "I_InitSound: SDL audio driver is %s\n", driver_name ? driver_name : "none");
     }
 }
 

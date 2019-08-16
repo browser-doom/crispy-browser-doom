@@ -240,6 +240,7 @@ R_DrawColumnInCache
 	    memset (marks + position, 0xff, count);
 	}
 		
+
 	patch = (column_t *)(  (byte *)patch + patch->length + 4); 
     }
 }

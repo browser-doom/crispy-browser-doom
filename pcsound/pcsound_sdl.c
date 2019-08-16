@@ -19,7 +19,11 @@
 #include <stdlib.h>
 
 #include "SDL.h"
+#ifdef __EMSCRIPTEN__
+#include "SDL2/SDL_mixer.h"
+#else
 #include "SDL_mixer.h"
+#endif
 
 #include "pcsound.h"
 #include "pcsound_internal.h"

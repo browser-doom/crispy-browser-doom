@@ -49,6 +49,10 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #define DEFAULT_RAM 16*2 /* MiB [crispy] */
 #define MIN_RAM     4*4  /* MiB [crispy] */
 
@@ -259,7 +263,9 @@ void I_Quit (void)
     }
 
     SDL_Quit();
-
+#ifdef __EMSCRIPTEN__
+	EM_ASM("Module['exitGame']();");
+#endif
     exit(0);
 }
 
@@ -315,6 +321,11 @@ void I_Error (const char *error, ...)
 
         entry = entry->next;
     }
+
+#ifdef __EMSCRIPTEN__
+	emscripten_cancel_main_loop();
+	EM_ASM(Module["fatalError"](UTF8ToString($0)), msgbuf);
+#endif
 
     //!
     // @category obscure

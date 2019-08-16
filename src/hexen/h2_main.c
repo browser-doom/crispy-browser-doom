@@ -42,6 +42,10 @@
 #include "v_video.h"
 #include "w_main.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 // MACROS ------------------------------------------------------------------
 
 #define MAXWADFILES 20
@@ -345,6 +349,12 @@ void D_SetGameDescription(void)
 //==========================================================================
 void InitMapMusicInfo(void);
 
+#ifdef __EMSCRIPTEN__
+#define CONFIG_PREFIX "browser-"
+#else
+#define CONFIG_PREFIX PROGRAM_PREFIX
+#endif
+
 void D_DoomMain(void)
 {
     GameMission_t gamemission;
@@ -382,6 +392,9 @@ void D_DoomMain(void)
     cdrom = M_ParmExists("-cdrom");
 #endif
 
+#ifdef __EMSCRIPTEN__
+	M_SetConfigDir("/data/");
+#else
     if (cdrom)
     {
         M_SetConfigDir("c:\\hexndata\\");
@@ -390,8 +403,9 @@ void D_DoomMain(void)
     {
         M_SetConfigDir(NULL);
     }
+#endif
 
-    M_SetConfigFilenames("hexen.cfg", PROGRAM_PREFIX "hexen.cfg");
+    M_SetConfigFilenames("hexen.cfg", CONFIG_PREFIX "hexen.cfg");
     M_LoadDefaults();
 
     D_SetDefaultSavePath();
@@ -790,6 +804,32 @@ static void WarpCheck(void)
     }
 }
 
+void H2_RunFrame(void) {
+    // Frame syncronous IO operations
+    I_StartFrame();
+
+    // Process one or more tics
+    // Will run at least one tic
+    TryRunTics();
+
+    // Move positional sounds
+    S_UpdateSounds(players[displayplayer].mo);
+
+    DrawAndBlit();
+}
+
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE
+void H2_SetLoopIter(void) {
+	emscripten_set_main_loop(H2_RunFrame, 0, 0);
+}
+EMSCRIPTEN_KEEPALIVE
+void H2_CancelLoopIter(void) {
+	emscripten_cancel_main_loop();
+}
+
+#endif
+
 //==========================================================================
 //
 // H2_GameLoop
@@ -807,22 +847,18 @@ void H2_GameLoop(void)
     I_SetWindowTitle(gamedescription);
     I_GraphicsCheckCommandLine();
     I_SetGrabMouseCallback(D_GrabMouseCallback);
+#ifdef __EMSCRIPTEN__
+	H2_SetLoopIter();
+	I_AtExit(H2_CancelLoopIter, true);
+#endif
     I_InitGraphics();
 
+#ifndef __EMSCRIPTEN__
     while (1)
     {
-        // Frame syncronous IO operations
-        I_StartFrame();
-
-        // Process one or more tics
-        // Will run at least one tic
-        TryRunTics();
-
-        // Move positional sounds
-        S_UpdateSounds(players[displayplayer].mo);
-
-        DrawAndBlit();
+		H2_RunFrame();
     }
+#endif
 }
 
 //==========================================================================

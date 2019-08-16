@@ -837,6 +837,9 @@ int TXT_ScreenHasBlinkingChars(void)
 
 void TXT_Sleep(int timeout)
 {
+#ifdef __EMSCRIPTEN__
+    return;
+#endif
     unsigned int start_time;
 
     if (TXT_ScreenHasBlinkingChars())

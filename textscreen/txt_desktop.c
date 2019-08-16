@@ -25,6 +25,10 @@
 #include "txt_separator.h"
 #include "txt_window.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #define HELP_KEY KEY_F1
 #define MAXWINDOWS 128
 
@@ -309,6 +313,9 @@ void TXT_DispatchEvents(void)
 
 void TXT_ExitMainLoop(void)
 {
+#ifdef __EMSCRIPTEN__
+	emscripten_cancel_main_loop();
+#endif
     main_loop_running = 0;
 }
 
@@ -352,35 +359,43 @@ void TXT_SetPeriodicCallback(TxtIdleCallback callback,
     periodic_callback_period = period;
 }
 
+void TXT_GUIMainLoopInner(void) {
+    TXT_DispatchEvents();
+
+    // After the last window is closed, exit the loop
+
+    if (num_windows <= 0)
+    {
+        TXT_ExitMainLoop();
+        return;
+    }
+
+    TXT_DrawDesktop();
+      TXT_DrawASCIITable();
+
+    if (periodic_callback == NULL)
+    {
+        TXT_Sleep(0);
+    }
+    else
+    {
+        TXT_Sleep(periodic_callback_period);
+
+        periodic_callback(periodic_callback_data);
+    }
+}
+
 void TXT_GUIMainLoop(void)
 {
     main_loop_running = 1;
 
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop(TXT_GUIMainLoopInner, 0, 0);
+#else
     while (main_loop_running)
     {
-        TXT_DispatchEvents();
-
-        // After the last window is closed, exit the loop
-
-        if (num_windows <= 0)
-        {
-            TXT_ExitMainLoop();
-            continue;
-        }
-
-        TXT_DrawDesktop();
-//        TXT_DrawASCIITable();
-
-        if (periodic_callback == NULL)
-        {
-            TXT_Sleep(0);
-        }
-        else
-        {
-            TXT_Sleep(periodic_callback_period);
-
-            periodic_callback(periodic_callback_data);
-        }
+		TXT_GUIMainLoopInner();
     }
+#endif
 }
 

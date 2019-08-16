@@ -2768,11 +2768,18 @@ char *M_GetSaveGameDir(const char *iwadname)
 char *M_GetAutoloadDir(const char *iwadname)
 {
     char *result;
+    if(iwadname == NULL) {
+	    printf("Heisann1\n");
+    }
 
     if (autoload_path == NULL || strlen(autoload_path) == 0)
     {
         char *prefdir;
         prefdir = SDL_GetPrefPath("", PACKAGE_TARNAME);
+	if(prefdir == NULL) {
+	    prefdir = M_StringDuplicate("/data/");
+	    printf("Heisann2\n");
+	}
         autoload_path = M_StringJoin(prefdir, "autoload", NULL);
         SDL_free(prefdir);
     }

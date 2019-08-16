@@ -33,6 +33,7 @@
 
 void I_Endoom(byte *endoom_data)
 {
+#ifndef __EMSCRIPTEN__
     unsigned char *screendata;
     int y;
     int indent;
@@ -75,5 +76,6 @@ void I_Endoom(byte *endoom_data)
     // Shut down text mode screen
 
     TXT_Shutdown();
+#endif
 }
 
