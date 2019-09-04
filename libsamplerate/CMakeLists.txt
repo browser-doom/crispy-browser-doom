@@ -1,2 +1,5 @@
+set (CPU_CLIPS_POSITIVE FALSE)
+set (CPU_CLIPS_NEGATIVE FALSE)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 add_library(samplerate samplerate.c src_linear.c src_sinc.c src_zoh.c)
-target_include_directories(samplerate PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(samplerate PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

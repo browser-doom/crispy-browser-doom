@@ -1,6 +1,6 @@
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-cmake_minimum_required(VERSION 3.7.2)
+cmake_minimum_required(VERSION 3.12)
 project("CrispyBrowser Doom" VERSION 5.6.0 LANGUAGES C)
 
 # Autotools variables

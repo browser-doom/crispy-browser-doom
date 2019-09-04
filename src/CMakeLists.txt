@@ -144,7 +144,7 @@ target_link_libraries("${PROGRAM_PREFIX}doom" doom ${EXTRA_LIBS})
 
 
 if(EMSCRIPTEN)
-	target_link_options("${PROGRAM_PREFIX}doom" PRIVATE "SHELL:-s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"BROWSERFS\"] -s EXTRA_EXPORTED_RUNTIME_METHODS=[\"FS\",\"UTF8ToString\"] --js-library ${CMAKE_CURRENT_SOURCE_DIR}/library_browserfs.js -s MODULARIZE=1 -s EXPORT_NAME=\"CrispyDoom\"")
+	target_link_options("${PROGRAM_PREFIX}doom" PRIVATE "SHELL:-s EXPORT_ES6=1 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"BROWSERFS\"] -s EXTRA_EXPORTED_RUNTIME_METHODS=[\"FS\",\"UTF8ToString\"] --js-library ${CMAKE_CURRENT_SOURCE_DIR}/library_browserfs.js -s MODULARIZE=1 -s EXPORT_NAME=\"CrispyDoom\"")
 endif()
 
 if(MSVC)
@@ -162,7 +162,7 @@ target_include_directories("${PROGRAM_PREFIX}heretic" PRIVATE ${GAME_INCLUDE_DIR
 target_link_libraries("${PROGRAM_PREFIX}heretic" heretic ${EXTRA_LIBS})
 
 if(EMSCRIPTEN)
-	target_link_options("${PROGRAM_PREFIX}heretic" PRIVATE "SHELL:-s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"BROWSERFS\"] -s EXTRA_EXPORTED_RUNTIME_METHODS=[\"FS\",\"UTF8ToString\"] --js-library ${CMAKE_CURRENT_SOURCE_DIR}/library_browserfs.js -s MODULARIZE=1 -s EXPORT_NAME=\"CrispyHeretic\"")
+	target_link_options("${PROGRAM_PREFIX}heretic" PRIVATE "SHELL:-s EXPORT_ES6=1 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"BROWSERFS\"] -s EXTRA_EXPORTED_RUNTIME_METHODS=[\"FS\",\"UTF8ToString\"] --js-library ${CMAKE_CURRENT_SOURCE_DIR}/library_browserfs.js -s MODULARIZE=1 -s EXPORT_NAME=\"CrispyHeretic\"")
 endif()
 
 if(MSVC)
@@ -180,7 +180,7 @@ target_include_directories("${PROGRAM_PREFIX}hexen" PRIVATE ${GAME_INCLUDE_DIRS}
 target_link_libraries("${PROGRAM_PREFIX}hexen" hexen ${EXTRA_LIBS})
 
 if(EMSCRIPTEN)
-	target_link_options("${PROGRAM_PREFIX}hexen" PRIVATE "SHELL:-s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"BROWSERFS\"] -s EXTRA_EXPORTED_RUNTIME_METHODS=[\"FS\",\"UTF8ToString\"] --js-library ${CMAKE_CURRENT_SOURCE_DIR}/library_browserfs.js -s MODULARIZE=1 -s EXPORT_NAME=\"CrispyHexen\"")
+	target_link_options("${PROGRAM_PREFIX}hexen" PRIVATE "SHELL:-s EXPORT_ES6=1 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"BROWSERFS\"] -s EXTRA_EXPORTED_RUNTIME_METHODS=[\"FS\",\"UTF8ToString\"] --js-library ${CMAKE_CURRENT_SOURCE_DIR}/library_browserfs.js -s MODULARIZE=1 -s EXPORT_NAME=\"CrispyHexen\"")
 endif()
 
 if(MSVC)
@@ -198,7 +198,7 @@ target_include_directories("${PROGRAM_PREFIX}strife" PRIVATE ${GAME_INCLUDE_DIRS
 target_link_libraries("${PROGRAM_PREFIX}strife" strife ${EXTRA_LIBS})
 
 if(EMSCRIPTEN)
-	target_link_options("${PROGRAM_PREFIX}strife" PRIVATE "SHELL:-s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"BROWSERFS\"] -s EXTRA_EXPORTED_RUNTIME_METHODS=[\"FS\",\"UTF8ToString\"] --js-library ${CMAKE_CURRENT_SOURCE_DIR}/library_browserfs.js -s MODULARIZE=1 -s EXPORT_NAME=\"CrispyStrife\"")
+	target_link_options("${PROGRAM_PREFIX}strife" PRIVATE "SHELL:-s EXPORT_ES6=1 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"BROWSERFS\"] -s EXTRA_EXPORTED_RUNTIME_METHODS=[\"FS\",\"UTF8ToString\"] --js-library ${CMAKE_CURRENT_SOURCE_DIR}/library_browserfs.js -s MODULARIZE=1 -s EXPORT_NAME=\"CrispyStrife\"")
 endif()
 
 if(MSVC)
