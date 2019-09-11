@@ -349,12 +349,6 @@ void D_SetGameDescription(void)
 //==========================================================================
 void InitMapMusicInfo(void);
 
-#ifdef __EMSCRIPTEN__
-#define CONFIG_PREFIX "browser-"
-#else
-#define CONFIG_PREFIX PROGRAM_PREFIX
-#endif
-
 void D_DoomMain(void)
 {
     GameMission_t gamemission;
@@ -392,9 +386,6 @@ void D_DoomMain(void)
     cdrom = M_ParmExists("-cdrom");
 #endif
 
-#ifdef __EMSCRIPTEN__
-	M_SetConfigDir("/data/");
-#else
     if (cdrom)
     {
         M_SetConfigDir("c:\\hexndata\\");
@@ -403,9 +394,8 @@ void D_DoomMain(void)
     {
         M_SetConfigDir(NULL);
     }
-#endif
 
-    M_SetConfigFilenames("hexen.cfg", CONFIG_PREFIX "hexen.cfg");
+    M_SetConfigFilenames("hexen.cfg", PROGRAM_PREFIX "hexen.cfg");
     M_LoadDefaults();
 
     D_SetDefaultSavePath();

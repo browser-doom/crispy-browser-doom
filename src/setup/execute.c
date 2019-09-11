@@ -45,10 +45,6 @@
 #include "m_config.h"
 #include "m_misc.h"
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif
-
 struct execute_context_s
 {
     char *response_file;
@@ -316,11 +312,6 @@ static char *GetFullExePath(const char *program)
 
 static int ExecuteCommand(const char *program, const char *arg)
 {
-#ifdef __EMSCRIPTEN__
-	EM_ASM("Module['launchExecutable'](Module['UTF8ToString']($0), Module['UTF8ToString']($1));", program, arg);
-	emscripten_cancel_main_loop();
-	exit(0);
-#else
     pid_t childpid;
     int result;
     const char *argv[3];
@@ -355,7 +346,6 @@ static int ExecuteCommand(const char *program, const char *arg)
             return -1;
         }
     }
-#endif
 }
 
 #endif

@@ -806,13 +806,6 @@ static void D_Endoom(void)
 // PROC D_DoomMain
 //
 //---------------------------------------------------------------------------
-
-#ifdef __EMSCRIPTEN__
-#define CONFIG_PREFIX "browser-"
-#else
-#define CONFIG_PREFIX PROGRAM_PREFIX
-#endif
-
 void D_DoomMain(void)
 {
     GameMission_t gamemission;
@@ -956,9 +949,6 @@ void D_DoomMain(void)
     }
 #endif
 
-#ifdef __EMSCRIPTEN__
-	M_SetConfigDir("/data/");
-#else
     if (cdrom)
     {
         M_SetConfigDir(DEH_String("c:\\heretic.cd"));
@@ -967,12 +957,11 @@ void D_DoomMain(void)
     {
         M_SetConfigDir(NULL);
     }
-#endif
 
     // Load defaults before initing other systems
     DEH_printf("M_LoadDefaults: Load system defaults.\n");
     D_BindVariables();
-    M_SetConfigFilenames("heretic.cfg", CONFIG_PREFIX "heretic.cfg");
+    M_SetConfigFilenames("heretic.cfg", PROGRAM_PREFIX "heretic.cfg");
     M_LoadDefaults();
 
     I_AtExit(M_SaveDefaults, false);

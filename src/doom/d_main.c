@@ -1540,12 +1540,6 @@ static void G_CheckDemoStatusAtExit (void)
     G_CheckDemoStatus();
 }
 
-#ifdef __EMSCRIPTEN__
-#define CONFIG_PREFIX "browser-"
-#else
-#define CONFIG_PREFIX PROGRAM_PREFIX
-#endif
-
 //
 // D_DoomMain
 //
@@ -1717,12 +1711,7 @@ void D_DoomMain (void)
 #endif
     {
         // Auto-detect the configuration dir.
-
-#ifdef __EMSCRIPTEN__
-		M_SetConfigDir("/data/");
-#else
         M_SetConfigDir(NULL);
-#endif
     }
 
     //!
@@ -1759,7 +1748,7 @@ void D_DoomMain (void)
 
     // Load configuration files before initialising other subsystems.
     DEH_printf("M_LoadDefaults: Load system defaults.\n");
-    M_SetConfigFilenames("default.cfg", CONFIG_PREFIX "doom.cfg");
+    M_SetConfigFilenames("default.cfg", PROGRAM_PREFIX "doom.cfg");
     D_BindVariables();
     M_LoadDefaults();
 
